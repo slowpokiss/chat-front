@@ -5,11 +5,14 @@ export default class Chat {
     this.container = container;
     this.api = new ChatAPI();
     this.websocket = null;
+
+    
   }
 
   init() {
     //this.bindToDOM();
     this.user = undefined;
+
     this.container.innerHTML = "";
     this.openModal();
   }
@@ -40,7 +43,6 @@ export default class Chat {
 
     this.modalForm.addEventListener("submit", (ev) => {
       ev.preventDefault();
-      console.log(this.modalForm.checkValidity());
       this.sendMessage(document.querySelector(".form__input").value);
       document.querySelector(".form__input").value = "";
     });
@@ -88,7 +90,7 @@ export default class Chat {
     this.modal.remove();
   }
 
-  msgTemplate(data, userType) {
+  msgTemplate(data, user) {
     const iso = data.message.time;
     const date = new Date(iso);
     const formattedTime = `${
@@ -101,7 +103,7 @@ export default class Chat {
     }${date.getMonth() + 1}.${date.getDate() < 10 ? "0" : ""}${date.getDate()}`;
     const formatted = `${formattedTime} ${formattedDate}`;
 
-    if (userType === "you") {
+    if (user === this.user.name) {
       return `
       <div class="message__container">
         <div class="message__container-yourself">
@@ -109,12 +111,11 @@ export default class Chat {
           ${data.message.text}
         </div>
       </div>`;
-    }
-    if (userType === "locutor") {
+    } else {
       return `
       <div class="message__container">
         <div class="message__container-interlocutor">
-        <div class="message__header">${this.user}${formatted}</div>
+        <div class="message__header">${this.user.name}, ${formatted}</div>
         ${data.message.text}
         </div>
       </div>
@@ -143,10 +144,9 @@ export default class Chat {
       const receivedMSG = JSON.parse(ev.data);
 
       if (receivedMSG.type === "send") {
-        this.renderMessage(receivedMSG);
+        this.renderMessage(receivedMSG, receivedMSG.name.name);
       }
 
-      console.log(JSON.parse(ev.data));
       if (receivedMSG.length > 0) {
         this.userList.innerHTML = "";
         receivedMSG.forEach((el) => {
@@ -198,9 +198,9 @@ export default class Chat {
     );
   }
 
-  renderMessage(data) {
+  renderMessage(data, userName) {
     document
       .querySelector(".chat__messages-container")
-      .insertAdjacentHTML("beforeend", this.msgTemplate(data, "you"));
+      .insertAdjacentHTML("beforeend", this.msgTemplate(data, userName));
   }
 }
