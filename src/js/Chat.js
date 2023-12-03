@@ -5,14 +5,10 @@ export default class Chat {
     this.container = container;
     this.api = new ChatAPI();
     this.websocket = null;
-
-    
   }
 
   init() {
-    //this.bindToDOM();
     this.user = undefined;
-
     this.container.innerHTML = "";
     this.openModal();
   }
@@ -25,10 +21,7 @@ export default class Chat {
     <div class="chat__container">
     <div class="chat__userlist"></div>
       <div class="chat__area">
-
-        <div class="chat__messages-container">
-        </div>
-
+        <div class="chat__messages-container"></div>
         <form class="form">
           <input class="form__input" placeholder="Type your messages here">
         </form>
@@ -123,10 +116,8 @@ export default class Chat {
     }
   }
 
-  registerEvents() {}
-
   subscribeOnEvents() {
-    this.websocket = new WebSocket("ws://localhost:3000/ws");
+    this.websocket = new WebSocket("wss://chat-server-y0ff.onrender.com/ws");
 
     this.websocket.addEventListener("open", (ev) => {
       console.log(ev);
@@ -172,7 +163,7 @@ export default class Chat {
     }
 
     const userName = { name: this.modalFormInput.value.trim() };
-    fetch(`http://localhost:3000/new-user`, {
+    fetch(`https://chat-server-y0ff.onrender.com/new-user`, {
       method: "POST",
       body: JSON.stringify(userName),
     }).then((response) => {
